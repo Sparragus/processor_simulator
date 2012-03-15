@@ -4,10 +4,11 @@ var getBinaryString = function (num, start, end) {
   // to substring a num properly it must be at least 16 characters long
   if (typeof num === "number") {
     num = num.toString(2);
-    num = extendZeroes(num, 16);
+    // num = extendZeroes(num, 16);
     return num.substring(num.length - start - 1, num.length - end);
   }
   else if(typeof num === "string") {
+		// Parse to int and then change to base 2 num (in string form)
     num = parseInt(num).toString(2);
     return num.substring(num.length - start - 1, num.length - end);
   }
@@ -75,40 +76,43 @@ var RISC_AR4 = function () {
     _f: {Z:8, C:4, N:2, O:1},
 
     _setFlag: function(flag, value) {
-      this._r.sr = (value ? (this._r.sr | flag) : (this._r.sr & ~(flag)));
+      this._r.sr = (value ? (this._r.sr | this._f[flag]) : (this._r.sr & ~(this._f[flag])));
     },
 
     _getFlag: function(flag) {
-      return ((this._r.sr & flag) ? 1 : 0);
+      return ((this._r.sr & this._f[flag]) ? 1 : 0);
     },
 
     _decode: function (instruction) {
-      var opCode = getBinaryString(instruction, 15, 11);
-      var op = this._opCodeMap[opCode];
+      var opCode = getBinaryString(instruction, 15, 11); 	// return binary string ex. "10010"
+      var op = this._opCodeMap[opCode]; 					// returns op name ex. "AND"
       var args = [];
 
 
-      if (typeof op === "undefined") {
+      if (typeof op === undefined) {
         return {op:null, args:null};
       }
       //---- Implicit addressing mode
       else if (op === "NEG" || op === "NOT" || op === "RLC" || op === "RRC" || op === "BRZ" || 
         op === "BRC" || op === "BRN" || op === "BRO" || op === "STOP" || op === "NOP") {
-        // Nothing happens. Only acc (implied) is used.
+        // Nothing happens. Only acc or sr (implied) is used.
       }
       //---- Immediate addressing mode
       else if (op === "LDI") {
-        // Get value from the instruction and parse it for ints.
-        var src = parseInt(getBinaryString(instruction, 10, 7), 2);
+        // Get value from the instruction and parse it for ints into a base 2 number
+		// TODO: parseInt wont work. Doesn't do two's complement. ????
+        var src = parseInt(getBinaryString(instruction, 7, 0), 2); 
 
         args.push(src);
-      } 
+      } 	  
+	  
       //---- Direct addressing mode
-      else if (op === "LDA" || op === "STA") {
+      else if (op === "LDAda" || op === "STAda") {
         // Get address from instruction...
-        var address = parseInt(getBinaryString(instruction, 10, 7), 2),
+        var address = parseInt(getBinaryString(instruction, 7, 0), 2),
         // ...and fetch value from memory.
-            src = MEM.read(address);
+			src = MEM.read(address);
+			
 
         args.push(src);
       }
@@ -143,8 +147,20 @@ var RISC_AR4 = function () {
       },
 
       ADDC: function (src) {
+				// Get num with larger magnitude...
+				var larger = ((Math.abs(this._r.acc) >= Math.abs(src)) ? acc : src);
+				// ...and extract the sign from it.
+				var sign_old = getBinaryString(larger, 7, 7);
+				
         this._r.acc = this._r.acc + src;
+				
+				// Get sign of the new acc. Needed for overflow calculation.
+				var sign_new = getBinaryString(this._r.acc, 7, 7);
         // TODO: Deal with flags
+				this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", 0);
+        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("O", sign_old === sign_new ? 0, 1);
       },
 
       SUB: function (src) {
@@ -165,7 +181,7 @@ var RISC_AR4 = function () {
         this._setFlag("O", 0);
       },
       
-      NEG: function () {
+      NOT: function () {
         this._r.acc = ~this._r.acc;
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
@@ -182,11 +198,11 @@ var RISC_AR4 = function () {
         // TODO: Deal with flags
       },
 
-      LDA: function (src) {
+      LDAda: function (src) {
         // TODO: Deal with flags
       },
 
-      STA: function (src) {
+      STAda: function (src) {
         // TODO: Deal with flags
       },
 
@@ -240,8 +256,8 @@ var RISC_AR4 = function () {
       "01001" : "RRC",
       "01010" : "LDA",
       "01011" : "STA",
-      "01100" : "LDA", // TODO: Ask Nayda about this name collision
-      "01101" : "STA",
+      "01100" : "LDAda", // TODO: Ask Nayda about this name collision
+      "01101" : "STAda",
       "01110" : "LDI",
       // Missing 01111
       "10000" : "BRZ",
@@ -260,15 +276,14 @@ var RISC_AR4 = function () {
 
     performCycle: function() {
       var instruction = MEM.read(this._r.pc);
-      var decodedInstruction = this._decode(instruction);
+      var decodedInstruction = this._decode(instruction); // {op:opCode, args:args}
+			this._r.pc += 2;
 
       if (decodedInstruction.op !== null && decodedInstruction.args !== null) {
-
         this._execute[decodedInstruction.op].apply(this, decodedInstruction.args);
-        this._r.pc += 2;
-      } else {
+      } 
+			else {
         this.stop();
-
         throw new Error("undefined operation code or wrongly defined arguments");
       }
     }
@@ -280,10 +295,12 @@ var RISC_AR4 = function () {
 (function(){
   var arch = RISC_AR4();
 
+  //---- Load program
+  // TODO: Load program func
   // Address: 0x00 Instruction: AND r0
   arch.MEM.write(0x00, 0x0000);
-  arch.CPU._r["r0"]  = parseInt('10011001', 2)
-  arch.CPU._r["acc"] = parseInt('10100101', 2)
+  arch.CPU._r["r0"]  = parseInt('10011001', 2) // 153
+  arch.CPU._r["acc"] = parseInt('10100101', 2) // 165
 
 
   // TODO: Why are both arch.CPU._r equal???? PC = 2 in both!?
@@ -293,15 +310,20 @@ var RISC_AR4 = function () {
   console.log("Cycle started");
   console.log("");
   console.log("Old Status:");
+  
   console.log(arch.CPU._r);
+  
   console.log("");
+  
   setTimeout(function(){
     arch.CPU.performCycle();
 
     console.log("");
     console.log("New Status:");
+	
     console.log(arch.CPU._r);
-    console.log("==================================");
+    
+	console.log("==================================");
     }, 1000);
   
 })();   
