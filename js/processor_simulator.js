@@ -17,7 +17,7 @@ var getBinaryString = function (num, start, end) {
   }
 };
 
-// Adds zeroes to the left side of the (binary) string 
+// Adds zeroes to the left side of the (binary) string
 // so that the end result is num.length === length
 var extendZeroes = function (num, length) {
   if (num.length >= length) {
@@ -38,22 +38,22 @@ var RISC_AR4 = function () {
     _size: 256,
     _memory: [],
 
-    // Read 8-bit byte from a given address 
-    readb: function(addr) { 
+    // Read 8-bit byte from a given address
+    readb: function(addr) {
       return 0xFF & this._memory[addr];
     },
 
-    // Read 16-bit word from a given address 
+    // Read 16-bit word from a given address
     read: function(addr) {
       return (this.readb(addr) << 8) + this.readb(addr+1);
     },
 
-    // Write 8-bit byte to a given address 
+    // Write 8-bit byte to a given address
     writeb: function(addr, val) {
       this._memory[addr] = 0xFF & val;
     },
-    
-    // Write 16-bit word to a given address 
+
+    // Write 16-bit word to a given address
     write: function(addr, val) {
       this.writeb(addr, val >> 8);
       this.writeb(addr+1, val);
@@ -93,7 +93,7 @@ var RISC_AR4 = function () {
         return {op:null, args:null};
       }
       //---- Implicit addressing mode
-      else if (op === "NEG" || op === "NOT" || op === "RLC" || op === "RRC" || op === "BRZ" || 
+      else if (op === "NEG" || op === "NOT" || op === "RLC" || op === "RRC" || op === "BRZ" ||
         op === "BRC" || op === "BRN" || op === "BRO" || op === "STOP" || op === "NOP") {
         // Nothing happens. Only acc or sr (implied) is used.
       }
@@ -101,23 +101,23 @@ var RISC_AR4 = function () {
       else if (op === "LDI") {
         // Get value from the instruction and parse it for ints into a base 2 number
 		// TODO: parseInt wont work. Doesn't do two's complement. ????
-        var src = parseInt(getBinaryString(instruction, 7, 0), 2); 
+        var src = parseInt(getBinaryString(instruction, 7, 0), 2);
 
         args.push(src);
-      } 	  
-	  
+      }
+
       //---- Direct addressing mode
       else if (op === "LDAda" || op === "STAda") {
         // Get address from instruction...
         var address = parseInt(getBinaryString(instruction, 7, 0), 2),
         // ...and fetch value from memory.
 			src = MEM.read(address);
-			
+
 
         args.push(src);
       }
       //---- Register Direct addressing mode
-      else if (op === "AND" || op === "OR" || op === "XOR" || op === "ADDC" || op === "SUB" || 
+      else if (op === "AND" || op === "OR" || op === "XOR" || op === "ADDC" || op === "SUB" ||
         op === "MAC" || op === "LDA" || op === "STA") {
         // Get register number from the instruction.
 
@@ -125,7 +125,7 @@ var RISC_AR4 = function () {
         var src = this._r[ this._regMap[register] ];
         args.push(src);
       }
-      
+
       return {op:op, args:args};
 
     },
@@ -151,16 +151,16 @@ var RISC_AR4 = function () {
 				var larger = ((Math.abs(this._r.acc) >= Math.abs(src)) ? acc : src);
 				// ...and extract the sign from it.
 				var sign_old = getBinaryString(larger, 7, 7);
-				
+
         this._r.acc = this._r.acc + src;
-				
+
 				// Get sign of the new acc. Needed for overflow calculation.
 				var sign_new = getBinaryString(this._r.acc, 7, 7);
         // TODO: Deal with flags
 				this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
-        this._setFlag("O", sign_old === sign_new ? 0, 1);
+        this._setFlag("O", sign_old === sign_new ? 0 : 1);
       },
 
       SUB: function (src) {
@@ -180,7 +180,7 @@ var RISC_AR4 = function () {
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
         this._setFlag("O", 0);
       },
-      
+
       NOT: function () {
         this._r.acc = ~this._r.acc;
         // TODO: Deal with flags
@@ -281,7 +281,7 @@ var RISC_AR4 = function () {
 
       if (decodedInstruction.op !== null && decodedInstruction.args !== null) {
         this._execute[decodedInstruction.op].apply(this, decodedInstruction.args);
-      } 
+      }
 			else {
         this.stop();
         throw new Error("undefined operation code or wrongly defined arguments");
@@ -310,20 +310,20 @@ var RISC_AR4 = function () {
   console.log("Cycle started");
   console.log("");
   console.log("Old Status:");
-  
+
   console.log(arch.CPU._r);
-  
+
   console.log("");
-  
+
   setTimeout(function(){
     arch.CPU.performCycle();
 
     console.log("");
     console.log("New Status:");
-	
+
     console.log(arch.CPU._r);
-    
+
 	console.log("==================================");
     }, 1000);
-  
-})();   
+
+})();
