@@ -4,11 +4,11 @@ var getBinaryString = function (num, start, end) {
   // to substring a num properly it must be at least 16 characters long
   if (typeof num === "number") {
     num = num.toString(2);
-    // num = extendZeroes(num, 16);
+    num = extendZeroes(num, 16);
     return num.substring(num.length - start - 1, num.length - end);
   }
   else if(typeof num === "string") {
-		// Parse to int and then change to base 2 num (in string form)
+    // Parse to int and then change to base 2 num (in string form)
     num = parseInt(num).toString(2);
     return num.substring(num.length - start - 1, num.length - end);
   }
@@ -100,7 +100,7 @@ var RISC_AR4 = function () {
       //---- Immediate addressing mode
       else if (op === "LDI") {
         // Get value from the instruction and parse it for ints into a base 2 number
-		// TODO: parseInt wont work. Doesn't do two's complement. ????
+	// TODO: parseInt wont work. Doesn't do two's complement. ????
         var src = parseInt(getBinaryString(instruction, 7, 0), 2);
 
         args.push(src);
@@ -111,8 +111,7 @@ var RISC_AR4 = function () {
         // Get address from instruction...
         var address = parseInt(getBinaryString(instruction, 7, 0), 2),
         // ...and fetch value from memory.
-			src = MEM.read(address);
-
+	src = MEM.read(address);
 
         args.push(src);
       }
@@ -120,7 +119,6 @@ var RISC_AR4 = function () {
       else if (op === "AND" || op === "OR" || op === "XOR" || op === "ADDC" || op === "SUB" ||
         op === "MAC" || op === "LDA" || op === "STA") {
         // Get register number from the instruction.
-
         var register = getBinaryString(instruction, 10, 8);
         var src = this._r[ this._regMap[register] ];
         args.push(src);
@@ -147,17 +145,17 @@ var RISC_AR4 = function () {
       },
 
       ADDC: function (src) {
-				// Get num with larger magnitude...
-				var larger = ((Math.abs(this._r.acc) >= Math.abs(src)) ? acc : src);
-				// ...and extract the sign from it.
-				var sign_old = getBinaryString(larger, 7, 7);
+        // Get num with larger magnitude...
+        var larger = ((Math.abs(this._r.acc) >= Math.abs(src)) ? acc : src);
+        // ...and extract the sign from it.
+        var sign_old = getBinaryString(larger, 7, 7);
 
         this._r.acc = this._r.acc + src;
 
-				// Get sign of the new acc. Needed for overflow calculation.
-				var sign_new = getBinaryString(this._r.acc, 7, 7);
+        // Get sign of the new acc. Needed for overflow calculation.
+        var sign_new = getBinaryString(this._r.acc, 7, 7);
         // TODO: Deal with flags
-				this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
         this._setFlag("O", sign_old === sign_new ? 0 : 1);
@@ -277,12 +275,13 @@ var RISC_AR4 = function () {
     performCycle: function() {
       var instruction = MEM.read(this._r.pc);
       var decodedInstruction = this._decode(instruction); // {op:opCode, args:args}
-			this._r.pc += 2;
+      this._r.pc += 2;
 
+      console.log("Performing CYCLE");
       if (decodedInstruction.op !== null && decodedInstruction.args !== null) {
         this._execute[decodedInstruction.op].apply(this, decodedInstruction.args);
       }
-			else {
+      else {
         this.stop();
         throw new Error("undefined operation code or wrongly defined arguments");
       }
