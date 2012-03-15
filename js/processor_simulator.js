@@ -31,6 +31,16 @@ var extendZeroes = function (num, length) {
   return num;
 };
 
+var binStringToInt = function (bin) {
+    var result = 0;
+    if (typeof bin === "string") {
+        for (var i = bin.length - 1; i >= 0; i--) {
+            result |= ((bin[i] === "1") ? 1 << (bin.length - 1 - i) : 0);
+        }
+    }
+    return result;
+};
+
 
 var RISC_AR4 = function () {
   var MEM = {
@@ -146,7 +156,7 @@ var RISC_AR4 = function () {
 
       ADDC: function (src) {
         // Get num with larger magnitude...
-        var larger = ((Math.abs(this._r.acc) >= Math.abs(src)) ? acc : src);
+        var larger = ((Math.abs(this._r.acc) >= Math.abs(src)) ? this._r.acc : src);
         // ...and extract the sign from it.
         var sign_old = getBinaryString(larger, 7, 7);
 
@@ -296,9 +306,9 @@ var RISC_AR4 = function () {
 
   //---- Load program
   // TODO: Load program func
-  // Address: 0x00 Instruction: AND r0
-  arch.MEM.write(0x00, 0x0000);
-  arch.CPU._r["r0"]  = parseInt('10011001', 2) // 153
+  // Address: 0x00 Instruction: ADDC r0
+  arch.MEM.write(0x00, 0x1800);
+  arch.CPU._r["r0"]  = parseInt('00000101', 2) // 153
   arch.CPU._r["acc"] = parseInt('10100101', 2) // 165
 
 
