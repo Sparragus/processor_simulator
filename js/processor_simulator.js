@@ -155,25 +155,45 @@ var RISC_AR4 = function () {
       },
 
       ADDC: function (src) {
-        // Get num with larger magnitude...
-        var larger = ((Math.abs(this._r.acc) >= Math.abs(src)) ? this._r.acc : src);
-        // ...and extract the sign from it.
-        var sign_old = getBinaryString(larger, 7, 7);
-
         this._r.acc = this._r.acc + src;
 
-        // Get sign of the new acc. Needed for overflow calculation.
-        var sign_new = getBinaryString(this._r.acc, 7, 7);
+        // Manage overflow
+        var overflow = 0;
+        if (this._r.acc > 127) {
+          this._r.acc -= 256;
+          overflow = 1;
+        }
+        else if (this._r.acc < -128) {
+          this._r.acc += 256;
+          overflow = 1;
+        }
+
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
-        this._setFlag("O", sign_old === sign_new ? 0 : 1);
+        this._setFlag("O", overflow);
       },
 
       SUB: function (src) {
         this._r.acc = this._r.acc - src;
+
+        // Manage overflow
+        var overflow = 0;
+        if (this._r.acc > 127) {
+          this._r.acc -= 256;
+          overflow = 1;
+        }
+        else if (this._r.acc < -128) {
+          this._r.acc += 256;
+          overflow = 1;
+        }
+
         // TODO: Deal with flags
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", 0);
+        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("O", overflow);
       },
 
       MAC: function (src) {
@@ -306,10 +326,10 @@ var RISC_AR4 = function () {
 
   //---- Load program
   // TODO: Load program func
-  // Address: 0x00 Instruction: ADDC r0
-  arch.MEM.write(0x00, 0x1800);
-  arch.CPU._r["r0"]  = parseInt('00000101', 2) // 153
-  arch.CPU._r["acc"] = parseInt('10100101', 2) // 165
+  // Address: 0x00 Instruction: SUB r0
+  arch.MEM.write(0x00, 0x2000);
+  arch.CPU._r["r0"]  = parseInt('01111111', 2) // r0 = 127
+  arch.CPU._r["acc"] = parseInt('01011011', 2) // acc = 91
 
 
   // TODO: Why are both arch.CPU._r equal???? PC = 2 in both!?
