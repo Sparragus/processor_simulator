@@ -77,7 +77,7 @@ var RISC_AR4 = function () {
       }
     },
 
-    install: function (program) {
+    load: function (program) {
             this._memory = program;
     }
 
