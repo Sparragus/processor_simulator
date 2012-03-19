@@ -133,7 +133,7 @@ var RISC_AR4 = function () {
       }
       //---- Register Direct addressing mode
       else if (op === "AND" || op === "OR" || op === "XOR" || op === "ADDC" || op === "SUB" ||
-        op === "MAC" || op === "LDA" {
+        op === "MAC" || op === "LDA") {
         // Get register number from the instruction.
         var register = getBinaryString(instruction, 10, 8);
         var src = this._r[ this._regMap[register] ];
