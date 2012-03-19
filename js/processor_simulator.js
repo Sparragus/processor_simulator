@@ -76,11 +76,11 @@ var RISC_AR4 = function () {
         this._memory[i] = 0;
       }
     },
-	
-	install = function (program) {
-		this._memory = program;
-	}
-	
+
+    install: function (program) {
+            this._memory = program;
+    }
+
 
   };
 
@@ -151,7 +151,7 @@ var RISC_AR4 = function () {
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
         this._setFlag("N", this._r.acc & 0x80 >> 7);
-        this._setFlag("O", 0);      
+        this._setFlag("O", 0);
 	  },
 
       OR: function (src) {
@@ -224,7 +224,7 @@ var RISC_AR4 = function () {
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
-        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("N", this._r.acc & 0x80 >> 7);
         this._setFlag("O", 0);
       },
 
@@ -277,7 +277,7 @@ var RISC_AR4 = function () {
       },
 
       NOP: function () {
-        // Do nothing  
+        // Do nothing
       }
     },
 
