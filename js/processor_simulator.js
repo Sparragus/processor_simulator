@@ -65,7 +65,7 @@ var RISC_AR4 = function () {
 
     // Write 16-bit word to a given address
     write: function(addr, val) {
-      this.writeb(addr, val >> 8);
+      this.writeb(addr, val >>> 8);
       this.writeb(addr+1, val);
     },
 
@@ -116,7 +116,7 @@ var RISC_AR4 = function () {
       //---- Immediate addressing mode
       else if (op === "LDI") {
         // Get value from the instruction and parse it for ints into a base 2 number
-  // TODO: parseInt wont work. Doesn't do two's complement. ????
+        // TODO: parseInt wont work. Doesn't do two's complement. ????
         var src = parseInt(getBinaryString(instruction, 7, 0), 2);
 
         args.push(src);
@@ -127,17 +127,22 @@ var RISC_AR4 = function () {
         // Get address from instruction...
         var address = parseInt(getBinaryString(instruction, 7, 0), 2),
         // ...and fetch value from memory.
-  src = MEM.read(address);
+        src = MEM.read(address);
 
         args.push(src);
       }
       //---- Register Direct addressing mode
       else if (op === "AND" || op === "OR" || op === "XOR" || op === "ADDC" || op === "SUB" ||
-        op === "MAC" || op === "LDA" || op === "STA") {
+        op === "MAC" || op === "LDA" {
         // Get register number from the instruction.
         var register = getBinaryString(instruction, 10, 8);
         var src = this._r[ this._regMap[register] ];
         args.push(src);
+      }
+      //---- Special case sor STA since we need to pass the reference to the register we are interested in
+      else if (op === "STA") {
+        var register = getBinaryString(instruction, 10, 8);
+        var src = this._regMap[register];
       }
 
       return {op:op, args:args};
@@ -150,7 +155,7 @@ var RISC_AR4 = function () {
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
-        this._setFlag("N", this._r.acc & 0x80 >> 7);
+        this._setFlag("N", this._r.acc & 0x80 >>> 7);
         this._setFlag("O", 0);
 	  },
 
@@ -221,35 +226,57 @@ var RISC_AR4 = function () {
 
       NOT: function () {
         this._r.acc = ~this._r.acc;
-        // TODO: Deal with flags
+
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
-        this._setFlag("N", this._r.acc & 0x80 >> 7);
+        this._setFlag("N", this._r.acc & 0x80 >>> 7);
         this._setFlag("O", 0);
       },
 
       RLC: function () {
-        // TODO: Deal with flags
+        var carry = this._r.acc & 0x80 >>> 7; // carry = MSB
+        this._r.acc = this._r.acc << 1 | carry;
+
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", carry);
+        this._setFlag("N", this._r.acc & 0x80 >>> 7);
+        this._setFlag("O", 0);
       },
 
       RRC: function () {
-        // TODO: Deal with flags
-      },
+        var carry = this._r.acc & 0x01; // carry = LSB
+        this._r.acc = (this._r.acc >>> 1) | (carry << 7);
 
-      LDAda: function (src) {
-        // TODO: Deal with flags
-      },
-
-      STAda: function (src) {
-        // TODO: Deal with flags
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", carry);
+        this._setFlag("N", this._r.acc & 0x80 >>> 7);
+        this._setFlag("O", 0);
       },
 
       LDA: function (src) {
-        // TODO: Deal with flags
+        this._r.acc = src;
+
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", 0);
+        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("O", 0);
       },
 
       STA: function (src) {
-        // TODO: Deal with flags
+        this._r[src] = this._r.acc;
+      },
+
+      LDAda: function (src) {
+        this._r.acc = MEM.readb(src); // src == address
+
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", 0);
+        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("O", 0);
+      },
+
+      STAda: function (src) {
+        MEM.writeb(src, this._r.acc); // src == address
       },
 
       LDI: function (src) {
