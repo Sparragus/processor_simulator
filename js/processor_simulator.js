@@ -75,7 +75,13 @@ var RISC_AR4 = function () {
       for (var i = 0; i <= this._size; i++) {
         this._memory[i] = 0;
       }
-    }
+    },
+	
+	install = function (program) {
+		this._memory = program;
+	}
+	
+
   };
 
   var CPU = {
@@ -94,8 +100,8 @@ var RISC_AR4 = function () {
     },
 
     _decode: function (instruction) {
-      var opCode = getBinaryString(instruction, 15, 11); 	// return binary string ex. "10010"
-      var op = this._opCodeMap[opCode]; 					// returns op name ex. "AND"
+      var opCode = getBinaryString(instruction, 15, 11);  // return binary string ex. "10010"
+      var op = this._opCodeMap[opCode];           // returns op name ex. "AND"
       var args = [];
 
 
@@ -110,7 +116,7 @@ var RISC_AR4 = function () {
       //---- Immediate addressing mode
       else if (op === "LDI") {
         // Get value from the instruction and parse it for ints into a base 2 number
-	// TODO: parseInt wont work. Doesn't do two's complement. ????
+  // TODO: parseInt wont work. Doesn't do two's complement. ????
         var src = parseInt(getBinaryString(instruction, 7, 0), 2);
 
         args.push(src);
@@ -121,7 +127,7 @@ var RISC_AR4 = function () {
         // Get address from instruction...
         var address = parseInt(getBinaryString(instruction, 7, 0), 2),
         // ...and fetch value from memory.
-	src = MEM.read(address);
+  src = MEM.read(address);
 
         args.push(src);
       }
@@ -142,7 +148,11 @@ var RISC_AR4 = function () {
       AND: function (src) {
         this._r.acc = this._r.acc & src;
         // TODO: Deal with flags
-      },
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", 0);
+        this._setFlag("N", this._r.acc & 0x80 >> 7);
+        this._setFlag("O", 0);      
+	  },
 
       OR: function (src) {
         this._r.acc = this._r.acc | src;
@@ -267,7 +277,7 @@ var RISC_AR4 = function () {
       },
 
       NOP: function () {
-        // TODO: Deal with flags
+        // Do nothing  
       }
     },
 
@@ -352,7 +362,7 @@ var RISC_AR4 = function () {
 
     console.log(arch.CPU._r);
 
-	console.log("==================================");
+  console.log("==================================");
     }, 1000);
 
 })();
