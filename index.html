@@ -6,13 +6,19 @@
     <title>Processor Simulator - RISC AR4</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="author" content="Juan Carlos Gomez Cruz" >
 
     <!-- Le styles -->
     <link href="./css/bootstrap.css" rel="stylesheet">
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+      #table-content
+      {
+      	height: 200px;
+      	overflow-x: hidden; 
+      	overflow-y: scroll;
       }
     </style>
 
@@ -66,7 +72,7 @@
           <div class="row">
             <div class="span12">
               <div class="row">
-                <div class="span2">
+                <div id="table-content" class="span2">
                   <table class="table table-striped table-condensed">
                     <!--<thead>-->
                         <!--<th></th>-->
@@ -212,7 +218,7 @@
     <script src="./js/jquery.js"></script>
     <script src="./js/bootstrap.js"></script>
     <script src="./js/processor_simulator.js"></script>
-    <script type="text/javascript">
+  <!--  <script type="text/javascript">
       var mem = new Array();
       function readFile(evt) {
         var f = evt.target.files[0];
@@ -245,6 +251,6 @@
 
       document.getElementById('fileinput').addEventListener('change', readFile, false);
     </script>
-
+-->
   </body>
 </html>
