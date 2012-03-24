@@ -443,5 +443,15 @@ var start_CPU = function(){
 
   console.log("==================================");
     }, 1000);
+    
+    setTimeout(function(){
+    	for(var i=0; i<arch.MEM._memory.length; i++){
+			arch.MEM.writeb(i, 0);
+		}
+		arch.MEM._memory.forEach(updateMemoryDisplay);
+
+  
+    }, 1000);
+    
 
 };
