@@ -379,7 +379,8 @@ function readFile(evt) {
                j++;
                }               
             start_CPU();
-           	document.getElementById('runlink').click();
+            setTimeout(function(){
+           	document.getElementById('runlink').click();}, 500);
             
           }
 
