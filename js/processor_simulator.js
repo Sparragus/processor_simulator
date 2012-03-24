@@ -403,19 +403,21 @@ var run_CPU = function(arch){
 	}
 };
 
+function updateMemoryDisplay(element, index, array) {
+	$('table#memory-table tbody').append("<tr><td>" + index.toString(16).toUpperCase() + "</td><td>" + element.toString(16).toUpperCase()+"</td></tr>");
+};
+
 var start_CPU = function(){
   var arch = RISC_AR4();
 
   //---- Load program
   // TODO: Load program func
   // Address: 0x00 Instruction: SUB r0
-
+	arch.MEM.reset();
   for(var i=0; i<mem.length; i++){
 	arch.MEM.writeb(i, binStringToInt(mem[i]));
 	}
-	 for(var i=0; i<mem.length; i = i + 2){
-	console.log(arch.MEM.read(i).toString(16).toUpperCase());
-	}
+	arch.MEM._memory.forEach(updateMemoryDisplay);
    //console.log("MEMORY LOCATION: 00 has " + arch.MEM.read(0x0));
   //arch.CPU._r["r0"]  = parseInt('01111111', 2) // r0 = 127
   //arch.CPU._r["acc"] = parseInt('01011011', 2) // acc = 91
