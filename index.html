@@ -6,7 +6,9 @@
     <title>Processor Simulator - RISC AR4</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
+    <meta name="author" content="Richard Bryan Kaufman-Lopez" >
     <meta name="author" content="Juan Carlos Gomez Cruz" >
+    <meta name="author" content="Musa Yassin-Fort" >
 
     <!-- Le styles -->
     <link href="./css/bootstrap.css" rel="stylesheet">
@@ -17,7 +19,7 @@
       #table-content
       {
       	height: 200px;
-      	overflow-x: hidden; 
+      	overflow-x: hidden;
       	overflow-y: scroll;
       }
     </style>
@@ -93,6 +95,9 @@
                       </tr>
                       <tr>
                         <td><code>0x08</code></td><td><code>0x39AF</code></td>
+        $('div#register_ pre').text(this.arch.CPU.r_['r']);
+        $('div#register_ pre').text(this.arch.CPU.r_['r']);
+        $('div#register_ pre').text(this.arch.CPU.r_['r']);
                       </tr>
                   <tr>
                     <td><code>0x0A</code></td><td><code>0x1711</code></td>
@@ -109,11 +114,11 @@
             <div class="span8"> <!-- column 2 -->
               <!-- Program Counter and Instruction Register-->
               <div class="row">
-                <div class="span2">
+                <div class="span2" id="program_counter">
                   <span class="label label-info">Program Counter</span>
                   <pre>01110101</pre>
                 </div>
-                <div class="span6">
+                <div class="span6" id="instruction_register">
                   <span class="label label-info">Instruction Register</span>
                   <pre>0111010101100101</pre>
                 </div>
@@ -122,11 +127,11 @@
 
               <!--Input and Output-->
               <div class="row">
-                <div class="span4">
+                <div class="span4" id="keyboard">
                   <span class="label label-info">Keyboard</span>
                   <pre>01110101</pre>
                 </div>
-                <div class="span4">
+                <div class="span4" id="display">
                   <span class="label label-info">Display</span>
                   <pre>01110101</pre>
                 </div>
@@ -134,27 +139,43 @@
 
               <!--Accumulator-->
               <div class="row">
-                <div class="span8">
+                <div class="span4" id="accumulator">
                   <span class="label label-info">Accumulator</span>
                   <pre>01110101</pre>
+                </div>
+                <div class="span1" id="zero_flag">
+                  <span class="label label-info">Zero</span>
+                  <pre>True</pre>
+                </div>
+                <div class="span1" id="negative_flag">
+                  <span class="label label-info">Negative</span>
+                  <pre>False</pre>
+                </div>
+                <div class="span1" id="carry_flag">
+                  <span class="label label-info">Carry</span>
+                  <pre>False</pre>
+                </div>
+                <div class="span1" id="overflow_flag">
+                  <span class="label label-info">Overflow</span>
+                  <pre>False</pre>
                 </div>
               </div> <!-- ACC -->
 
               <!--Registers 1-->
               <div class="row">
                 <div class="span2">
-                  <span class="badge">0</span>
+                  <span class="badge" id="register_0">0</span>
                   <pre>01110101</pre>
                 </div>
-                <div class="span2">
+                <div class="span2" id="register_1">
                   <span class="badge badge-success">1</span>
                   <pre>01110101</pre>
                 </div>
-                <div class="span2">
+                <div class="span2" id="register_2">
                   <span class="badge badge-warning">2</span>
                   <pre>01110101</pre>
                 </div>
-                <div class="span2">
+                <div class="span2" id="register_3">
                   <span class="badge badge-error">3</span>
                   <pre>01111010</pre>
                 </div>
@@ -162,19 +183,19 @@
 
               <!--Registers 2-->
               <div class="row">
-                <div class="span2">
+                <div class="span2" id="register_4">
                   <span class="badge">4</span>
                   <pre>01110101</pre>
                 </div>
-                <div class="span2">
+                <div class="span2" id="register_5">
                   <span class="badge badge-success">5</span>
                   <pre>01110101</pre>
                 </div>
-                <div class="span2">
+                <div class="span2" id="register_6">
                   <span class="badge badge-warning">6</span>
                   <pre>01110101</pre>
                 </div>
-                <div class="span2">
+                <div class="span2" id="register_7">
                   <span class="badge badge-error">7</span>
                   <pre>01111010</pre>
                 </div>
@@ -187,7 +208,7 @@
             <div class="span2">
               <div class="row">
                 <div class="span1">
-                  <button class="btn btn-large btn-">
+                  <button id="run_button" class="btn btn-large btn-">
                     <i class="icon-play"></i>
                     Run
                   </button>
@@ -195,7 +216,7 @@
               <!--</div>-->
               <!--<div class="row">-->
                 <div class="span1">
-                  <button class="btn btn-large">
+                  <button id="step_button" class="btn btn-large">
                     <i class="icon-share-alt"></i>
                     Step
                   </button>
@@ -218,6 +239,7 @@
     <script src="./js/jquery.js"></script>
     <script src="./js/bootstrap.js"></script>
     <script src="./js/processor_simulator.js"></script>
+    <script src="./js/main.js"></script>
 
   </body>
 </html>
