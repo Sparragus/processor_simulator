@@ -49,9 +49,9 @@
         // Update Memory
         updateMemoryDisplay(computer);
         // Program Counter
-        $('div#program_counter pre').text(computer.CPU._r['pc'].toString(2));
+        $('div#program_counter pre').text(extendZeroes(computer.CPU._r['pc'].toString(2),8));
         // Instruction Register
-        $('div#instruction_register pre').text(computer.CPU._r['ir'].toString(2));
+        $('div#instruction_register pre').text(extendZeroes(computer.CPU._r['ir'].toString(2), 16));
         // Keyboard
         //$('div#keyboard pre').text(computer.CPU._r['pc']);
         // Display
@@ -76,6 +76,7 @@
 
     var startCPU = function(program) {
         var arch = RISC_AR4();
+        arch.MEM.reset();
         for(var i=0; i<program.length; i++){
             arch.MEM.writeb(i, binStringToInt(program[i]));
 	}
