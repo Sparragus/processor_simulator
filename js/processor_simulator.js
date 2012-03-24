@@ -281,22 +281,40 @@ var RISC_AR4 = function () {
 
       LDI: function (src) {
         // TODO: Deal with flags
+		this._r.acc = src;
+		
+		this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", 0);
+        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("O", 0);
       },
 
       BRZ: function () {
         // TODO: Deal with flags
+		if(this._getFlag("Z")){
+			this._r.pc = this._r.r7;
+		}
       },
 
       BRC: function () {
         // TODO: Deal with flags
+		if(this._getFlag("C")){
+			this._r.pc = this._r.r7;
+		}
       },
 
       BRN: function () {
         // TODO: Deal with flags
+		if(this._getFlag("N")){
+			this._r.pc = this._r.r7;
+		}
       },
 
       BRO: function () {
         // TODO: Deal with flags
+		if(this._getFlag("O")){
+			this._r.pc = this._r.r7;
+		}
       },
 
       STOP: function () {
