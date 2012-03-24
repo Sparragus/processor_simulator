@@ -1,29 +1,29 @@
 ;(function () {
     var update =  function(computer) {
         // Program Counter
-        $('div#program_counter pre').text(computer.CPU.r_['pc']);
+        $('div#program_counter pre').text(computer.CPU._r['pc']);
         // Instruction Register
-        $('div#instruction_register pre').text(computer.CPU.r_['ir']);
+        $('div#instruction_register pre').text(computer.CPU._r['ir']);
         // Keyboard
-        //$('div#keyboard pre').text(computer.CPU.r_['pc']);
+        //$('div#keyboard pre').text(computer.CPU._r['pc']);
         // Display
-        //$('div#display pre').text(computer.CPU.r_['pc']);
+        //$('div#display pre').text(computer.CPU._r['pc']);
         // Accumulator
-        $('div#accumulator pre').text(computer.CPU.r_['acc']);
+        $('div#accumulator pre').text(computer.CPU._r['acc']);
         // ZNCO Flags
         $('div#zero_flag pre').text(computer.CPU._getFlag(computer.CPU._f['Z']));
         $('div#negative_flag pre').text(computer.CPU._getFlag(computer.CPU._f['N']));
         $('div#carry_flag pre').text(computer.CPU._getFlag(computer.CPU._f['C']));
         $('div#overflow_flag pre').text(computer.CPU._getFlag(computer.CPU._f['O']));
         // Registers
-        $('div#register_0 pre').text(computer.CPU.r_['r0']);
-        $('div#register_1 pre').text(computer.CPU.r_['r1']);
-        $('div#register_2 pre').text(computer.CPU.r_['r2']);
-        $('div#register_3 pre').text(computer.CPU.r_['r3']);
-        $('div#register_4 pre').text(computer.CPU.r_['r4']);
-        $('div#register_5 pre').text(computer.CPU.r_['r5']);
-        $('div#register_6 pre').text(computer.CPU.r_['r6']);
-        $('div#register_7 pre').text(computer.CPU.r_['r7']);
+        $('div#registe_r0 pre').text(computer.CPU._r['r0']);
+        $('div#registe_r1 pre').text(computer.CPU._r['r1']);
+        $('div#registe_r2 pre').text(computer.CPU._r['r2']);
+        $('div#registe_r3 pre').text(computer.CPU._r['r3']);
+        $('div#registe_r4 pre').text(computer.CPU._r['r4']);
+        $('div#registe_r5 pre').text(computer.CPU._r['r5']);
+        $('div#registe_r6 pre').text(computer.CPU._r['r6']);
+        $('div#registe_r7 pre').text(computer.CPU._r['r7']);
     };
 
     var startCPU = function(program) {
@@ -38,6 +38,7 @@
     var runCPU = function(computer) {
         computer.CPU.performCycle();
         update(computer)
+        //console.log("Computer: ", computer);
     };
 
     var onClickRun = function() {
@@ -83,11 +84,8 @@
     };
 
     var onClickStep = function() {
-
         console.log("Step");
     };
-
-
 
     //var program = loadFile();
     var program = [0x00];
