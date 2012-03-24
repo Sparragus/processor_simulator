@@ -1,9 +1,57 @@
+    var mem;
 ;(function () {
+
+    var readFile = function (evt) {
+        mem  = [];
+        var f = evt.target.files[0];
+        var hexMap = {"0":"0000", "1":"0001", "2":"0010", "3":"0011", "4":"0100", "5":"0101", "6":"0110", "7":"0111", "8":"1000", "9":"1001", "A":"1010", "B":"1011", "C":"1100", "D":"1101", "E":"1110", "F":"1111"};
+        if (f) {
+          var r = new FileReader();
+          r.readAsText(f);
+          r.onload = function(e) {
+            var j=0;
+            var contents = e.target.result;
+            s=contents.split('\n');
+            for( var i=0; i<s.length-1; i++){
+               var first = hexMap[ s[i].charAt(0) ];
+               var second = hexMap [ s[i].charAt(1) ];
+               var third = hexMap [ s[i].charAt(2) ];
+               var fourth = hexMap [ s[i].charAt(3) ];
+               mem[j] = first + second;
+               mem[++j] = third + fourth;
+               j++;
+           }
+
+            setTimeout(function(){
+                $('#runlink').click();
+            }, 500);
+
+            //return mem;
+          }
+
+        } else {
+          alert("Failed to load file");
+        }
+    };
+
+    var updateMemoryDisplay = function (arch) {
+       //arch.MEM._memory.forEach(createHTMLForMemory);
+        var htmlStr;
+        var tbody = $('table#memory-table tbody');
+        tbody.empty();
+        arch.MEM._memory.forEach( function (element, index, array) {
+            htmlStr = "<tr><td>" + index.toString(16).toUpperCase() + "</td><td>" + element.toString(16).toUpperCase()+"</td></tr>";
+            tbody.append(htmlStr);
+        });
+    };
+
     var update =  function(computer) {
+        // Update Memory
+        updateMemoryDisplay(computer);
         // Program Counter
-        $('div#program_counter pre').text(computer.CPU._r['pc']);
+        $('div#program_counter pre').text(computer.CPU._r['pc'].toString(2));
         // Instruction Register
-        $('div#instruction_register pre').text(computer.CPU._r['ir']);
+        $('div#instruction_register pre').text(computer.CPU._r['ir'].toString(2));
         // Keyboard
         //$('div#keyboard pre').text(computer.CPU._r['pc']);
         // Display
@@ -16,14 +64,14 @@
         $('div#carry_flag pre').text(computer.CPU._getFlag(computer.CPU._f['C']));
         $('div#overflow_flag pre').text(computer.CPU._getFlag(computer.CPU._f['O']));
         // Registers
-        $('div#registe_r0 pre').text(computer.CPU._r['r0']);
-        $('div#registe_r1 pre').text(computer.CPU._r['r1']);
-        $('div#registe_r2 pre').text(computer.CPU._r['r2']);
-        $('div#registe_r3 pre').text(computer.CPU._r['r3']);
-        $('div#registe_r4 pre').text(computer.CPU._r['r4']);
-        $('div#registe_r5 pre').text(computer.CPU._r['r5']);
-        $('div#registe_r6 pre').text(computer.CPU._r['r6']);
-        $('div#registe_r7 pre').text(computer.CPU._r['r7']);
+        $('div#register_0 pre').text(computer.CPU._r['r0']);
+        $('div#register_1 pre').text(computer.CPU._r['r1']);
+        $('div#register_2 pre').text(computer.CPU._r['r2']);
+        $('div#register_3 pre').text(computer.CPU._r['r3']);
+        $('div#register_4 pre').text(computer.CPU._r['r4']);
+        $('div#register_5 pre').text(computer.CPU._r['r5']);
+        $('div#register_6 pre').text(computer.CPU._r['r6']);
+        $('div#register_7 pre').text(computer.CPU._r['r7']);
     };
 
     var startCPU = function(program) {
@@ -61,6 +109,7 @@
                 intervalId = window.setInterval( function() {
                     //console.log("Running...")
                     runCPU(computer);
+                    console.log(computer);
                 }, 1000);
 
             }
@@ -87,10 +136,16 @@
         console.log("Step");
     };
 
-    //var program = loadFile();
-    var program = [0x00];
-    var computer = startCPU(program);
-    //runCPU(computer);
-    $('button#run_button').on('click', onClickRun());
+    var computer;
+    var hello = function() {
+        setTimeout(function () {
+            var program = mem;
+            computer = startCPU(program);
+            updateMemoryDisplay(computer);
+            $('button#run_button').on('click', onClickRun());
+        }, 1000);
+    };
+    document.getElementById('fileinput').addEventListener('change', readFile, false);
+    document.getElementById('fileinput').addEventListener('change', hello, false);
 
 }());
