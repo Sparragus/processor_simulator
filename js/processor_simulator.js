@@ -66,7 +66,7 @@ var RISC_AR4 = function () {
     // Write 16-bit word to a given address
     write: function(addr, val) {
       this.writeb(addr, val >>> 8);
-      this.writeb(addr+1, val);
+      this.writeb(addr+1, (0xF & val));
     },
 
     reset: function() {
@@ -358,16 +358,66 @@ var RISC_AR4 = function () {
   return {MEM : MEM, CPU : CPU};
 };
 
-(function(){
+var mem = new Array();
+function readFile(evt) {
+        var f = evt.target.files[0];
+        var hexMap = {"0":"0000", "1":"0001", "2":"0010", "3":"0011", "4":"0100", "5":"0101", "6":"0110", "7":"0111", "8":"1000", "9":"1001", "A":"1010", "B":"1011", "C":"1100", "D":"1101", "E":"1110", "F":"1111"};
+        if (f) {
+          var r = new FileReader();
+          r.readAsText(f);
+          r.onload = function(e) {
+            var j=0;
+            var contents = e.target.result;
+            s=contents.split('\n');
+            for( var i=0; i<s.length-1; i++){
+               var first = hexMap[ s[i].charAt(0) ];
+               var second = hexMap [ s[i].charAt(1) ];
+               var third = hexMap [ s[i].charAt(2) ];
+               var fourth = hexMap [ s[i].charAt(3) ];
+               mem[j] = first + second;
+               mem[++j] = third + fourth;
+               j++;
+               }               
+            start_CPU();
+           	document.getElementById('runlink').click();
+            
+          }
+
+        } else {
+          alert("Failed to load file");
+        }
+}
+document.getElementById('fileinput').addEventListener('change', readFile, false);
+var run = 0;
+var step = 1;
+
+
+var run_CPU = function(arch){
+	if(!(run||step)){
+		console.log("trololo");
+		}
+	while(run||step){
+		arch.CPU.performCycle();
+		step=0;
+	}
+};
+
+var start_CPU = function(){
   var arch = RISC_AR4();
 
   //---- Load program
   // TODO: Load program func
   // Address: 0x00 Instruction: SUB r0
-  arch.MEM.write(0x00, 0x2000);
-  arch.CPU._r["r0"]  = parseInt('01111111', 2) // r0 = 127
-  arch.CPU._r["acc"] = parseInt('01011011', 2) // acc = 91
 
+  for(var i=0; i<mem.length; i++){
+	arch.MEM.writeb(i, binStringToInt(mem[i]));
+	}
+	 for(var i=0; i<mem.length; i = i + 2){
+	console.log(arch.MEM.read(i).toString(16).toUpperCase());
+	}
+   //console.log("MEMORY LOCATION: 00 has " + arch.MEM.read(0x0));
+  //arch.CPU._r["r0"]  = parseInt('01111111', 2) // r0 = 127
+  //arch.CPU._r["acc"] = parseInt('01011011', 2) // acc = 91
 
   // TODO: Why are both arch.CPU._r equal???? PC = 2 in both!?
   // http://stackoverflow.com/questions/4057440/is-chromes-javascript-console-lazy-about-evaluating-arrays
@@ -382,8 +432,7 @@ var RISC_AR4 = function () {
   console.log("");
 
   setTimeout(function(){
-    arch.CPU.performCycle();
-
+    run_CPU(arch);
     console.log("");
     console.log("New Status:");
 
@@ -392,4 +441,4 @@ var RISC_AR4 = function () {
   console.log("==================================");
     }, 1000);
 
-})();
+};
