@@ -57,21 +57,21 @@
         // Display
         //$('div#display pre').text(computer.CPU._r['pc']);
         // Accumulator
-        $('div#accumulator pre').text(computer.CPU._r['acc']);
+        $('div#accumulator pre').text(extendZeroes(computer.CPU._r['acc'].toString(2),8));
         // ZNCO Flags
-        $('div#zero_flag pre').text(computer.CPU._getFlag(computer.CPU._f['Z']));
-        $('div#negative_flag pre').text(computer.CPU._getFlag(computer.CPU._f['N']));
-        $('div#carry_flag pre').text(computer.CPU._getFlag(computer.CPU._f['C']));
-        $('div#overflow_flag pre').text(computer.CPU._getFlag(computer.CPU._f['O']));
+        $('div#zero_flag pre').text(computer.CPU._getFlag('Z'));
+        $('div#negative_flag pre').text(computer.CPU._getFlag('N'));
+        $('div#carry_flag pre').text(computer.CPU._getFlag('C'));
+        $('div#overflow_flag pre').text(computer.CPU._getFlag('O'));
         // Registers
-        $('div#register_0 pre').text(computer.CPU._r['r0']);
-        $('div#register_1 pre').text(computer.CPU._r['r1']);
-        $('div#register_2 pre').text(computer.CPU._r['r2']);
-        $('div#register_3 pre').text(computer.CPU._r['r3']);
-        $('div#register_4 pre').text(computer.CPU._r['r4']);
-        $('div#register_5 pre').text(computer.CPU._r['r5']);
-        $('div#register_6 pre').text(computer.CPU._r['r6']);
-        $('div#register_7 pre').text(computer.CPU._r['r7']);
+        $('div#register_0 pre').text(extendZeroes(computer.CPU._r['r0'].toString(2),8));
+        $('div#register_1 pre').text(extendZeroes(computer.CPU._r['r1'].toString(2),8));
+        $('div#register_2 pre').text(extendZeroes(computer.CPU._r['r2'].toString(2),8));
+        $('div#register_3 pre').text(extendZeroes(computer.CPU._r['r3'].toString(2),8));
+        $('div#register_4 pre').text(extendZeroes(computer.CPU._r['r4'].toString(2),8));
+        $('div#register_5 pre').text(extendZeroes(computer.CPU._r['r5'].toString(2),8));
+        $('div#register_6 pre').text(extendZeroes(computer.CPU._r['r6'].toString(2),8));
+        $('div#register_7 pre').text(extendZeroes(computer.CPU._r['r7'].toString(2),8));
     };
 
     var startCPU = function(program) {
