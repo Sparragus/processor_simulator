@@ -388,10 +388,10 @@ var RISC_AR4 = function () {
 
     stop: function() {
       // Stop the machine
+	  this._status.stop = 1;
     },
 
     performCycle: function() {
-		console.log("idle = " + this._status.idle);
 		if(!(this._status.stop || this._status.idle)){
 		  var instruction = MEM.read(this._r.pc);
 		  this._r.ir = instruction;
