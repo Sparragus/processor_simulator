@@ -144,17 +144,14 @@ var RISC_AR4 = function () {
         op === "MAC" || op === "LDA") {
         // Get register number from the instruction.
         var register = getBinaryString(instruction, 10, 8);
-        console.log("The register to operate in the AND is: " + register);
         var src = this._r[ this._regMap[register] ];
-        console.log("The value in that register that is being passed as src is " + src);
         args.push(src);
       }
       //---- Special case sor STA since we need to pass the reference to the register we are interested in
       else if (op === "STA") {
         var register = getBinaryString(instruction, 10, 8);
-        console.log("Register is "+ register);
         var src = this._regMap[register];
-        console.log("Value is " + src);
+        args.push(src);
       }
 
       return {op:op, args:args};
@@ -163,7 +160,6 @@ var RISC_AR4 = function () {
 
     _execute: {
       AND: function (src) {
-             console.log("This: "+this._r.acc + " and this: "+src);
         this._r.acc = this._r.acc & src;
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
@@ -287,7 +283,6 @@ var RISC_AR4 = function () {
 
       STA: function (src) {
         this._r[src] = this._r.acc;
-        console.log("Value in register is "+this._r[src]);
       },
 
       LDAda: function (src) {
@@ -300,15 +295,14 @@ var RISC_AR4 = function () {
       },
 
       STAda: function (src) {
-               console.log("Entered Store address "+src);
         MEM.writeb(src, this._r.acc); // src == address
       },
 
       LDI: function (src) {
         // TODO: Deal with flags
-		this._r.acc = src;
+        this._r.acc = src;
 
-		this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
         this._setFlag("O", 0);
@@ -402,100 +396,3 @@ var RISC_AR4 = function () {
   return {MEM : MEM, CPU : CPU};
 };
 
-var mem = new Array();
-//function readFile(evt) {
-        //var f = evt.target.files[0];
-        //var hexMap = {"0":"0000", "1":"0001", "2":"0010", "3":"0011", "4":"0100", "5":"0101", "6":"0110", "7":"0111", "8":"1000", "9":"1001", "A":"1010", "B":"1011", "C":"1100", "D":"1101", "E":"1110", "F":"1111"};
-        //if (f) {
-          //var r = new FileReader();
-          //r.readAsText(f);
-          //r.onload = function(e) {
-            //var j=0;
-            //var contents = e.target.result;
-            //s=contents.split('\n');
-            //for( var i=0; i<s.length-1; i++){
-               //var first = hexMap[ s[i].charAt(0) ];
-               //var second = hexMap [ s[i].charAt(1) ];
-               //var third = hexMap [ s[i].charAt(2) ];
-               //var fourth = hexMap [ s[i].charAt(3) ];
-               //mem[j] = first + second;
-               //mem[++j] = third + fourth;
-               //j++;
-               //}
-            //start_CPU();
-            //setTimeout(function(){
-                   //document.getElementById('runlink').click();}, 500);
-
-          //}
-
-        //} else {
-          //alert("Failed to load file");
-        //}
-//}
-//document.getElementById('fileinput').addEventListener('change', readFile, false);
-//var run = 0;
-//var step = 1;
-
-
-//var run_CPU = function(arch){
-	//if(!(run||step)){
-		//console.log("trololo");
-		//}
-	//while(run||step){
-		//arch.CPU.performCycle();
-		//step=0;
-	//}
-//};
-
-
-//function updateMemoryDisplay(arch){
-   ////arch.MEM._memory.forEach(createHTMLForMemory);
-    //var htmlStr;
-    //var tbody = $('table#memory-table tbody');
-    //tbody.empty();
-    //arch.MEM._memory.forEach( function (element, index, array) {
-        //htmlStr = "<tr><td>" + index.toString(16).toUpperCase() + "</td><td>" + element.toString(16).toUpperCase()+"</td></tr>";
-        //tbody.append(htmlStr);
-    //});
-//};
-
-//var start_CPU = function(){
-  //var arch = RISC_AR4();
-
-  ////---- Load program
-  //// TODO: Load program func
-  //// Address: 0x00 Instruction: SUB r0
-	//arch.MEM.reset();
-  //for(var i=0; i<mem.length; i++){
-	//arch.MEM.writeb(i, binStringToInt(mem[i]));
-	//}
-  //updateMemoryDisplay(arch);
-   ////console.log("MEMORY LOCATION: 00 has " + arch.MEM.read(0x0));
-  ////arch.CPU._r["r0"]  = parseInt('01111111', 2) // r0 = 127
-  ////arch.CPU._r["acc"] = parseInt('01011011', 2) // acc = 91
-
-  //// TODO: Why are both arch.CPU._r equal???? PC = 2 in both!?
-  //// http://stackoverflow.com/questions/4057440/is-chromes-javascript-console-lazy-about-evaluating-arrays
-
-  //console.log("==================================");
-  //console.log("Cycle started");
-  //console.log("");
-  //console.log("Old Status:");
-
-  //console.log(arch.CPU._r);
-
-  //console.log("");
-
-  //setTimeout(function(){
-    //run_CPU(arch);
-    //console.log("");
-    //console.log("New Status:");
-
-    //console.log(arch.CPU._r);
-
-  //console.log("==================================");
-    //}, 1000);
-
-
-
-//};
