@@ -127,7 +127,7 @@ var RISC_AR4 = function () {
         // Get address from instruction...
         var address = parseInt(getBinaryString(instruction, 7, 0), 2),
         // ...and fetch value from memory.
-        src = MEM.read(address);
+        src = address;
 
         args.push(src);
       }
