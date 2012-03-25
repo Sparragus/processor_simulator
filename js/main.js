@@ -164,5 +164,37 @@
     };
     document.getElementById('fileinput').addEventListener('change', readFile, false);
     document.getElementById('fileinput').addEventListener('change', hello, false);
-
+	
+	//Subscribe input and output devices to "interrupts"
+	$(document).ready(function(){
+		$("#device_driver").on("out", function(e, data){
+			//replace one 
+			var stringPos = data.mempos-252;
+			var displayPre = $(this).find("#display pre");
+			var displayText = displayPre.text();
+			var asciiFromMem = String.fromCharCode(data.mem.readb(data.memPos));
+			var newText = displayText.substr(0, stringPos) + asciiFromMem + displayText.substr(stringPos + 1, displayText.length);
+			displayPre.text(newText);
+		});
+		
+		$("#device_driver").on("in", function(e, data){
+			//since cpu is not multicore, set to idle until it waits for input
+			data.cpu._status.idle = 1;
+			
+			$(this).find("#keyboard pre input").on("change", function(){
+				//write ascii to memory
+				data.mem.writeb(data.memPos, $(this).val().charCodeAt(0));
+				console.log($(this).val().charCodeAt(0));
+				//remove event listener
+				//$(this).off("change");
+				//reset value
+				$(this).val("");
+				
+				//change status to not idle
+				data.cpu._status.idle = 0;
+			});
+		});
+		
+	});
+	
 }());

@@ -90,6 +90,12 @@ var RISC_AR4 = function () {
     _regMap: {"000":"r0", "001":"r1", "010":"r2", "011":"r3", "100":"r4", "101":"r5", "110":"r6", "111":"r7"},
     // Flag bit masks
     _f: {Z:8, C:4, N:2, O:1},
+	//CPU status flags
+	_status: {stop : 0, idle : 0},
+	//delegate to input or output devices
+	_delegate: function(type, data){
+		$("#device_driver").trigger(type, data);
+	},
 
     _setFlag: function(flag, value) {
       this._r.sr = (value ? (this._r.sr | this._f[flag]) : (this._r.sr & ~(this._f[flag])));
@@ -125,10 +131,8 @@ var RISC_AR4 = function () {
       //---- Direct addressing mode
       else if (op === "LDAda") {
         // Get address from instruction...
-        var address = parseInt(getBinaryString(instruction, 7, 0), 2),
-        // ...and fetch value from memory.
-        src = address;
-
+        var src = parseInt(getBinaryString(instruction, 7, 0), 2);
+       
         args.push(src);
       }
        else if (op === "STAda") {
@@ -292,10 +296,20 @@ var RISC_AR4 = function () {
         this._setFlag("C", 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
         this._setFlag("O", 0);
+		
+		//trigerear keyboard event.
+		if(src === 250 || src === 251){
+			this._delegate("in", {cpu: this, mem: MEM, memPos: src});
+		}
       },
 
       STAda: function (src) {
         MEM.writeb(src, this._r.acc); // src == address
+		
+		//trigerear display event.
+		if(src >= 252  && src <= 255){
+			this._delegate("out", {mem : MEM, memPos : src});
+		}
       },
 
       LDI: function (src) {
@@ -377,20 +391,23 @@ var RISC_AR4 = function () {
     },
 
     performCycle: function() {
-      var instruction = MEM.read(this._r.pc);
-      this._r.ir = instruction;
-      var decodedInstruction = this._decode(instruction); // {op:opCode, args:args}
-      this._r.pc += 2;
+		console.log("idle = " + this._status.idle);
+		if(!(this._status.stop || this._status.idle)){
+		  var instruction = MEM.read(this._r.pc);
+		  this._r.ir = instruction;
+		  var decodedInstruction = this._decode(instruction); // {op:opCode, args:args}
+		  this._r.pc += 2;
 
-      console.log("Performing CYCLE");
-      if (decodedInstruction.op !== null && decodedInstruction.args !== null) {
-        this._execute[decodedInstruction.op].apply(this, decodedInstruction.args);
-      }
-      else {
-        this.stop();
-        throw new Error("undefined operation code or wrongly defined arguments");
-      }
-    }
+		  console.log("Performing CYCLE");
+		  if (decodedInstruction.op !== null && decodedInstruction.args !== null) {
+			this._execute[decodedInstruction.op].apply(this, decodedInstruction.args);
+		  }
+		  else {
+			this.stop();
+			throw new Error("undefined operation code or wrongly defined arguments");
+		  }
+		}
+	}
   };
 
   return {MEM : MEM, CPU : CPU};
