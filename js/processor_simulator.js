@@ -72,7 +72,7 @@ var RISC_AR4 = function () {
     reset: function() {
       this._memory = [];
 
-      for (var i = 0; i <= this._size; i++) {
+      for (var i = 0; i < this._size; i++) {
         this._memory[i] = 0;
       }
     },
@@ -123,11 +123,19 @@ var RISC_AR4 = function () {
       }
 
       //---- Direct addressing mode
-      else if (op === "LDAda" || op === "STAda") {
+      else if (op === "LDAda") {
         // Get address from instruction...
         var address = parseInt(getBinaryString(instruction, 7, 0), 2),
         // ...and fetch value from memory.
         src = MEM.read(address);
+
+        args.push(src);
+      }
+       else if (op === "STAda") {
+        // Get address from instruction...
+        var address = parseInt(getBinaryString(instruction, 7, 0), 2),
+        // ...and fetch value from memory.
+        src = address;
 
         args.push(src);
       }
@@ -136,13 +144,17 @@ var RISC_AR4 = function () {
         op === "MAC" || op === "LDA") {
         // Get register number from the instruction.
         var register = getBinaryString(instruction, 10, 8);
+        console.log("The register to operate in the AND is: " + register);
         var src = this._r[ this._regMap[register] ];
+        console.log("The value in that register that is being passed as src is " + src);
         args.push(src);
       }
       //---- Special case sor STA since we need to pass the reference to the register we are interested in
       else if (op === "STA") {
         var register = getBinaryString(instruction, 10, 8);
+        console.log("Register is "+ register);
         var src = this._regMap[register];
+        console.log("Value is " + src);
       }
 
       return {op:op, args:args};
@@ -151,22 +163,33 @@ var RISC_AR4 = function () {
 
     _execute: {
       AND: function (src) {
+             console.log("This: "+this._r.acc + " and this: "+src);
         this._r.acc = this._r.acc & src;
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", 0);
+        this._setFlag("C", this._r.acc > 255 ? 1 : 0);
         this._setFlag("N", this._r.acc & 0x80 >>> 7);
-        this._setFlag("O", 0);
+        this._setFlag("O", ((this._r.acc > 127)||(this._r.acc<-128))? 1 : 0);
 	  },
 
       OR: function (src) {
         this._r.acc = this._r.acc | src;
         // TODO: Deal with flags
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", this._r.acc > 255 ? 1 : 0);
+        this._setFlag("N", this._r.acc & 0x80 >>> 7);
+        this._setFlag("O", ((this._r.acc > 127)||(this._r.acc<=-128))? 1 : 0);
+
       },
 
       XOR: function (src) {
         this._r.acc = this._r.acc ^ src;
         // TODO: Deal with flags
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", this._r.acc > 255 ? 1 : 0);
+        this._setFlag("N", this._r.acc & 0x80 >>> 7);
+        this._setFlag("O", ((this._r.acc > 127)||(this._r.acc<-128))? 1 : 0);
+
       },
 
       ADDC: function (src) {
@@ -264,6 +287,7 @@ var RISC_AR4 = function () {
 
       STA: function (src) {
         this._r[src] = this._r.acc;
+        console.log("Value in register is "+this._r[src]);
       },
 
       LDAda: function (src) {
@@ -276,6 +300,7 @@ var RISC_AR4 = function () {
       },
 
       STAda: function (src) {
+               console.log("Entered Store address "+src);
         MEM.writeb(src, this._r.acc); // src == address
       },
 
