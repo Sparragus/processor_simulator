@@ -134,7 +134,23 @@
     };
 
     var onClickStep = function() {
-        console.log("Step");
+        return function() {
+            runCPU(computer);
+        };
+    };
+
+    var onClickControlButtons = function(run_handler, step_handler) {
+        var run_ = run_handler();
+        var step_ = step_handler();
+        return function (e) {
+            console.log(e);
+            if (e.target.id === "run_button") {
+                run_();
+            }
+            else {
+                step_();
+            }
+        };
     };
 
     var computer;
@@ -143,7 +159,7 @@
             var program = mem;
             computer = startCPU(program);
             updateMemoryDisplay(computer);
-            $('button#run_button').on('click', onClickRun());
+            $('div#control_buttons').on('click', onClickControlButtons(onClickRun, onClickStep));
         }, 1000);
     };
     document.getElementById('fileinput').addEventListener('change', readFile, false);
