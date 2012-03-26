@@ -10,6 +10,7 @@
 
     <!-- Le styles -->
     <link href="./css/bootstrap.css" rel="stylesheet">
+	<link href="./css/jquery.dialog2.css" rel="stylesheet">
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -193,7 +194,23 @@
                   </button>
                 </div>
               </div>
-            </div> <!--Run and Step--><!-- column 3 -- >
+            </div> 
+			<!-- Keyboard Dialog -->
+			<div id="keyboardDialog" style="display: none">
+				<h1>Keyboard Input</h1>
+				<p>
+					<label for = "keyboardInputText">Input</label>
+					<input type = "text" id="keyboardInputText" maxLength="1"/>
+				</p>
+				<div class="actions">
+					<button id ="keyboardDialogSubmit" class="primary close-dialog">Submit</button>
+				</div>
+			</div>
+			
+			
+		<!--Run and Step--><!-- column 3 -- >
+			
+			
           </div>
         </div>
       </div>
@@ -211,6 +228,7 @@
     <script src="./js/bootstrap.js"></script>
     <script src="./js/processor_simulator.js"></script>
     <script src="./js/main.js"></script>
+	<script src="./js/jquery.dialog2.js"></script>
 
   </body>
 </html>

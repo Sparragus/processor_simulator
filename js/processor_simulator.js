@@ -352,6 +352,7 @@ var RISC_AR4 = function () {
 
       STOP: function () {
         // TODO: Deal with flags
+		this._status.stop = 1;
       },
 
       NOP: function () {

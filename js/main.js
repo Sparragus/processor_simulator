@@ -181,20 +181,33 @@
 			//since cpu is not multicore, set to idle until it waits for input
 			data.cpu._status.idle = 1;
 			
-			$(this).find("#keyboard pre input").on("change", function(){
+			var keyboardDialog = $("#keyboardDialog");
+			keyboardDialog.dialog2("open");
+			
+			$(keyboardDialog).find("#keyboardDialogSubmit").on("click", function(){
+				
+				//Get written input from text
+				var keyboardInputText = keyboardDialog.find("#keyboardInputText")
+			
 				//write ascii to memory
-				data.mem.writeb(data.memPos, $(this).val().charCodeAt(0));
-				console.log($(this).val().charCodeAt(0));
-				//remove event listener
-				//$(this).off("change");
-				//reset value
-				$(this).val("");
+				data.mem.writeb(data.memPos, keyboardInputText.val().charCodeAt(0));
+
+				//reset the keyboard input text
+				keyboardInputText.val("");
 				
 				//change status to not idle
 				data.cpu._status.idle = 0;
 			});
 		});
 		
+		//Initialize dialog
+        $("#keyboardDialog").dialog2({
+            showCloseHandle: false,
+            removeOnClose: false, 
+            autoOpen: false, 
+            closeOnEscape: false, 
+            closeOnOverlayClick: false
+        });
 	});
 	
 }());
