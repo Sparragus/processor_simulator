@@ -12,7 +12,7 @@
             var j=0;
             var contents = e.target.result;
             s=contents.split('\n');
-            for( var i=0; i<s.length-1; i++){
+            for( var i=0; i<s.length; i++){
                var first = hexMap[ s[i].charAt(0) ];
                var second = hexMap [ s[i].charAt(1) ];
                var third = hexMap [ s[i].charAt(2) ];
