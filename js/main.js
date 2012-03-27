@@ -190,13 +190,31 @@
 				var keyboardInputText = keyboardDialog.find("#keyboardInputText")
 			
 				//write ascii to memory
-				data.mem.writeb(data.memPos, keyboardInputText.val().charCodeAt(0));
+				var ascii = keyboardInputText.val().charCodeAt(0);
+				
+				data.mem.writeb(data.memPos, ascii);
+				
+				//write ascii to accumulator and update flags
+				data.cpu._r.acc = ascii; 
+				
+				//update flags
+				data.cpu._setFlag("Z", data.cpu._r.acc === 0 ? 1 : 0);
+				data.cpu._setFlag("C", 0);
+				data.cpu._setFlag("N", data.cpu._r.acc < 0 ? 1 : 0);
+				data.cpu._setFlag("O", 0);
 
 				//reset the keyboard input text
 				keyboardInputText.val("");
 				
+				//update display
+				updateMemoryDisplay(computer);
+				
+				//update acumulator
+				$('div#accumulator pre').text(extendZeroes(data.cpu._r['acc'].toString(2),8));
+				
 				//change status to not idle
 				data.cpu._status.idle = 0;
+			
 			});
 		});
 		

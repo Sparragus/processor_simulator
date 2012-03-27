@@ -290,17 +290,19 @@ var RISC_AR4 = function () {
       },
 
       LDAda: function (src) {
-        this._r.acc = MEM.readb(src); // src == address
+	  //Si no tiene que leer del keyboard.. agarra lo que esta en memoria
+		  if(!(src === 250 || src === 251)){
+			this._r.acc = MEM.readb(src); // src == address
 
-        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", 0);
-        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
-        this._setFlag("O", 0);
-		
-		//trigerear keyboard event.
-		if(src === 250 || src === 251){
+			this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+			this._setFlag("C", 0);
+			this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+			this._setFlag("O", 0);
+		  }
+		//Triguerea el keyboard	
+		  else{	
 			this._delegate("in", {cpu: this, mem: MEM, memPos: src});
-		}
+		  }
       },
 
       STAda: function (src) {
