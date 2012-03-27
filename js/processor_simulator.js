@@ -132,7 +132,7 @@ var RISC_AR4 = function () {
       else if (op === "LDAda") {
         // Get address from instruction...
         var src = parseInt(getBinaryString(instruction, 7, 0), 2);
-       
+
         args.push(src);
       }
        else if (op === "STAda") {
@@ -252,17 +252,17 @@ var RISC_AR4 = function () {
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
-        this._setFlag("N", this._r.acc & 0x80 >>> 7);
+        this._setFlag("N", (this._r.acc & 0x80) >>> 7);
         this._setFlag("O", 0);
       },
 
       RLC: function () {
-        var carry = this._r.acc & 0x80 >>> 7; // carry = MSB
-        this._r.acc = this._r.acc << 1 | carry;
+        var carry = (this._r.acc & 0x80) >>> 7; // carry = MSB
+        this._r.acc = (this._r.acc << 1) | carry;
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", carry);
-        this._setFlag("N", this._r.acc & 0x80 >>> 7);
+        this._setFlag("N", (this._r.acc & 0x80) >>> 7);
         this._setFlag("O", 0);
       },
 
@@ -272,7 +272,7 @@ var RISC_AR4 = function () {
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", carry);
-        this._setFlag("N", this._r.acc & 0x80 >>> 7);
+        this._setFlag("N", (this._r.acc & 0x80) >>> 7);
         this._setFlag("O", 0);
       },
 
@@ -299,15 +299,24 @@ var RISC_AR4 = function () {
 			this._setFlag("N", this._r.acc < 0 ? 1 : 0);
 			this._setFlag("O", 0);
 		  }
-		//Triguerea el keyboard	
-		  else{	
+		//Triguerea el keyboard
+		  else{
+        this._r.acc = MEM.readb(src); // src == address
+
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", 0);
+        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("O", 0);
+
+		//trigerear keyboard event.
+		if(src === 250 || src === 251){
 			this._delegate("in", {cpu: this, mem: MEM, memPos: src});
 		  }
       },
 
       STAda: function (src) {
         MEM.writeb(src, this._r.acc); // src == address
-		
+
 		//trigerear display event.
 		if(src >= 252  && src <= 255){
 			this._delegate("out", {mem : MEM, memPos : src});

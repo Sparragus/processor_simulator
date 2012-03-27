@@ -164,11 +164,11 @@
     };
     document.getElementById('fileinput').addEventListener('change', readFile, false);
     document.getElementById('fileinput').addEventListener('change', hello, false);
-	
+
 	//Subscribe input and output devices to "interrupts"
 	$(document).ready(function(){
 		$("#device_driver").on("out", function(e, data){
-			//replace one 
+			//replace one
 			var stringPos = data.mempos-252;
 			var displayPre = $(this).find("#display pre");
 			var displayText = displayPre.text();
@@ -176,27 +176,27 @@
 			var newText = displayText.substr(0, stringPos) + asciiFromMem + displayText.substr(stringPos + 1, displayText.length);
 			displayPre.text(newText);
 		});
-		
+
 		$("#device_driver").on("in", function(e, data){
 			//since cpu is not multicore, set to idle until it waits for input
 			data.cpu._status.idle = 1;
-			
+
 			var keyboardDialog = $("#keyboardDialog");
 			keyboardDialog.dialog2("open");
-			
+
 			$(keyboardDialog).find("#keyboardDialogSubmit").on("click", function(){
-				
+
 				//Get written input from text
 				var keyboardInputText = keyboardDialog.find("#keyboardInputText")
-			
+
 				//write ascii to memory
 				var ascii = keyboardInputText.val().charCodeAt(0);
-				
+
 				data.mem.writeb(data.memPos, ascii);
-				
+
 				//write ascii to accumulator and update flags
-				data.cpu._r.acc = ascii; 
-				
+				data.cpu._r.acc = ascii;
+
 				//update flags
 				data.cpu._setFlag("Z", data.cpu._r.acc === 0 ? 1 : 0);
 				data.cpu._setFlag("C", 0);
@@ -205,27 +205,27 @@
 
 				//reset the keyboard input text
 				keyboardInputText.val("");
-				
+
 				//update display
 				updateMemoryDisplay(computer);
-				
+
 				//update acumulator
 				$('div#accumulator pre').text(extendZeroes(data.cpu._r['acc'].toString(2),8));
-				
+
 				//change status to not idle
 				data.cpu._status.idle = 0;
-			
+
 			});
 		});
-		
+
 		//Initialize dialog
         $("#keyboardDialog").dialog2({
             showCloseHandle: false,
-            removeOnClose: false, 
-            autoOpen: false, 
-            closeOnEscape: false, 
+            removeOnClose: false,
+            autoOpen: false,
+            closeOnEscape: false,
             closeOnOverlayClick: false
         });
 	});
-	
+
 }());
