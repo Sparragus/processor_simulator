@@ -163,6 +163,7 @@ var RISC_AR4 = function () {
     },
 
     _execute: {
+     
       AND: function (src) {
         this._r.acc = this._r.acc & src;
 
@@ -170,7 +171,7 @@ var RISC_AR4 = function () {
 
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", (this._r.acc * 0x100)>>>8);
+        //this._setFlag("C", (this._r.acc & 0x100)>>>8);
         this._setFlag("N", this._r.acc & 0x80 >>> 7);
         //this._setFlag("O", overflow);
 	  },
@@ -182,7 +183,7 @@ var RISC_AR4 = function () {
 
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", (this._r.acc * 0x100)>>>8);
+       // this._setFlag("C", (this._r.acc & 0x100)>>>8);
         this._setFlag("N", this._r.acc & 0x80 >>> 7);
         //this._setFlag("O", overflow);
 
@@ -195,7 +196,7 @@ var RISC_AR4 = function () {
 
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", (this._r.acc * 0x100)>>>8);
+       // this._setFlag("C", (this._r.acc & 0x100)>>>8);
         this._setFlag("N", this._r.acc & 0x80 >>> 7);
         //this._setFlag("O", overflow);
 
@@ -205,16 +206,10 @@ var RISC_AR4 = function () {
         var accsign = (this._r.acc & 0x80)>>>7;
         this._r.acc = this._r.acc + src + this._getFlag("C");
 
-        if (this._r.acc > 127) {
-          this._r.acc -= 256;
-        }
-        else if (this._r.acc < -128) {
-          this._r.acc += 256;
-        }
-
+                  
         //Manage Overflow
         var overflow = !(accsign ^ ((src & 0x80)>>>7));
-        if(overflow === 1)
+        if(overflow == 1)
         {
           if(accsign === (this._r.acc & 0x80)>>>7)
           {
@@ -225,25 +220,29 @@ var RISC_AR4 = function () {
 
 
         // TODO: Deal with flags
-        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", (this._r.acc * 0x100)>>>8);
-        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("Z", (this._r.acc & 0xFF) === 0 ? 1 : 0);
+        this._setFlag("C", (this._r.acc & 0x100)>>>8);
         this._setFlag("O", overflow);
+
+        if (this._r.acc > 127) {
+          this._r.acc -= 256;
+        }
+        else if (this._r.acc < -128) {
+          this._r.acc += 256;
+        }
+         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+
+
       },
 
       SUB: function (src) {
+        var accsign = (this._r.acc & 0x80)>>>7;
         this._r.acc = this._r.acc - src;
 
-        if (this._r.acc > 127) {
-          this._r.acc -= 256;
-        }
-        else if (this._r.acc < -128) {
-          this._r.acc += 256;
-        }
-
+        
         //Manage Overflow
         var overflow = !(accsign ^ ((src & 0x80)>>>7));
-        if(overflow === 1)
+        if(overflow == 1)
         {
           if(accsign === (this._r.acc & 0x80)>>>7)
           {
@@ -253,18 +252,54 @@ var RISC_AR4 = function () {
         }
 
         // TODO: Deal with flags
-        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", (this._r.acc * 0x100)>>>8);
-        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("Z", (this._r.acc & 0xFF) === 0 ? 1 : 0);
+        this._setFlag("C", (this._r.acc & 0x100)>>>8);
         this._setFlag("O", overflow);
+
+        if (this._r.acc > 127) {
+          this._r.acc -= 256;
+        }
+        else if (this._r.acc < -128) {
+          this._r.acc += 256;
+        }
+
+         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+
+
       },
 
       MAC: function (src) {
+            var accsign = (this._r.acc & 0x80)>>>7;
+            var fLSBacc = this._r.acc & 0xF;
+            var fLSBsrc = src & 0xF;
 
-            var fLSBacc = this._r.acc * 0xF;
-            var fLSBsrc = src * 0xF;
+            this._r.acc = (fLSBacc*fLSBsrc) + fLSBsrc; 
+            //console.log("The MAC result is: "+ this._r.acc);
+                   
+        //Manage Overflow
+        var overflow = !(accsign ^ ((src & 0x80)>>>7));
+        //console.log("overflow is: " + overflow);
+        //console.log("Accsign is: " + accsign);
+        var debug = (this._r.acc & 0x80)>>>7;
+        //console.log("New Accsign is: "+ debug);
+        //console.log("Signs are the same: "+ overflow);
+        if(overflow == 1)
+        {
+          //console.log("Accsign is: " + accsign);
+          //console.log("Debug is: " + debug);
+          //console.log("The logic is: " + (accsign === debug));
+          if(accsign === debug)
+          {
+            overflow = 0;
+            //console.log("CHANGED OVERFLOW TO 0");
+          }
 
-            this._r.acc = (fLSBacc*fLSBsrc) + fLSBsrc;
+        }
+
+        // TODO: Deal with flags
+        this._setFlag("Z", (this._r.acc & 0xFF) === 0 ? 1 : 0);
+        this._setFlag("C", (this._r.acc & 0x100)>>>8);
+        this._setFlag("O", overflow);
 
         if (this._r.acc > 127) {
           this._r.acc -= 256;
@@ -273,25 +308,11 @@ var RISC_AR4 = function () {
           this._r.acc += 256;
         }
 
-        //Manage Overflow
-        var overflow = !(accsign ^ ((src & 0x80)>>>7));
-        if(overflow === 1)
-        {
-          if(accsign === (this._r.acc & 0x80)>>>7)
-          {
-            overflow = 0;
-          }
-
-        }
-
-        // TODO: Deal with flags
-        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", (this._r.acc * 0x100)>>>8);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
-        this._setFlag("O", overflow);
+
 
       },
-
+ 
       NEG: function () {
         this._r.acc = -this._r.acc;
         // TODO: Deal with flags
