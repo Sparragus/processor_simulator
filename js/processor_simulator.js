@@ -203,6 +203,11 @@ var RISC_AR4 = function () {
       },
 
       ADDC: function (src) {
+        if(this._r.acc < 0)
+        {
+            this._r.acc += 256;
+            this._r.acc = (this._r.acc & 0xFF);
+        }
         var accsign = (this._r.acc & 0x80)>>>7;
         this._r.acc = this._r.acc + src + this._getFlag("C");
 
