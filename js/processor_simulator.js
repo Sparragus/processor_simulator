@@ -355,9 +355,9 @@ var RISC_AR4 = function () {
         this._r.acc = src;
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", 0);
+        //this._setFlag("C", 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
-        this._setFlag("O", 0);
+        //this._setFlag("O", 0);
       },
 
       STA: function (src) {
@@ -370,9 +370,7 @@ var RISC_AR4 = function () {
         this._r.acc = MEM.readb(src); // src == address
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
-        this._setFlag("O", 0);
 	  }
 		//trigerear keyboard event.
 		else{
@@ -394,9 +392,7 @@ var RISC_AR4 = function () {
         this._r.acc = src;
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
-        this._setFlag("O", 0);
       },
 
       BRZ: function () {
