@@ -211,9 +211,7 @@
 
 				//update flags
 				data.cpu._setFlag("Z", data.cpu._r.acc === 0 ? 1 : 0);
-				data.cpu._setFlag("C", 0);
 				data.cpu._setFlag("N", data.cpu._r.acc < 0 ? 1 : 0);
-				data.cpu._setFlag("O", 0);
 
 				//reset the keyboard input text
 				keyboardInputText.val("");
