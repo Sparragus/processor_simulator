@@ -218,10 +218,10 @@
 				//reset the keyboard input text
 				keyboardInputText.val("");
 
-				//update display
+				//update memory ui
 				updateMemoryDisplay(computer);
 
-				//update acumulator
+				//update acumulator ui
 				$('div#accumulator pre').text(extendZeroes(data.cpu._r['acc'].toString(2),8));
 
 				//change status to not idle
