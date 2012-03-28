@@ -57,14 +57,26 @@
         // Display
         //$('div#display pre').text(computer.CPU._r['pc']);
         // Accumulator
+        if(computer.CPU._r['acc']<0){
+          $('div#accumulator pre').text(extendZeroes((computer.CPU._r['acc']+256).toString(2),8));
+
+        }
+        else{
         $('div#accumulator pre').text(extendZeroes(computer.CPU._r['acc'].toString(2),8));
-        // ZNCO Flags
+        }
+          // ZNCO Flags
         $('div#zero_flag pre').text(computer.CPU._getFlag('Z'));
         $('div#negative_flag pre').text(computer.CPU._getFlag('N'));
         $('div#carry_flag pre').text(computer.CPU._getFlag('C'));
         $('div#overflow_flag pre').text(computer.CPU._getFlag('O'));
         // Registers
+        if(computer.CPU._r['r0']<0){
+          $('div#register_0 pre').text(extendZeroes((computer.CPU._r['r0']+256).toString(2),8));
+
+        }
+        else{
         $('div#register_0 pre').text(extendZeroes(computer.CPU._r['r0'].toString(2),8));
+        }
         $('div#register_1 pre').text(extendZeroes(computer.CPU._r['r1'].toString(2),8));
         $('div#register_2 pre').text(extendZeroes(computer.CPU._r['r2'].toString(2),8));
         $('div#register_3 pre').text(extendZeroes(computer.CPU._r['r3'].toString(2),8));

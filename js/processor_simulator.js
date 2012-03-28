@@ -165,50 +165,68 @@ var RISC_AR4 = function () {
     _execute: {
       AND: function (src) {
         this._r.acc = this._r.acc & src;
+
+        var overflow = 0;
+
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", this._r.acc > 255 ? 1 : 0);
+        this._setFlag("C", (this._r.acc * 0x100)>>>8);
         this._setFlag("N", this._r.acc & 0x80 >>> 7);
-        this._setFlag("O", ((this._r.acc > 127)||(this._r.acc<-128))? 1 : 0);
+        //this._setFlag("O", overflow);
 	  },
 
       OR: function (src) {
         this._r.acc = this._r.acc | src;
+
+        var overflow = 0;
+
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", this._r.acc > 255 ? 1 : 0);
+        this._setFlag("C", (this._r.acc * 0x100)>>>8);
         this._setFlag("N", this._r.acc & 0x80 >>> 7);
-        this._setFlag("O", ((this._r.acc > 127)||(this._r.acc<=-128))? 1 : 0);
+        //this._setFlag("O", overflow);
 
       },
 
       XOR: function (src) {
         this._r.acc = this._r.acc ^ src;
+        var overflow = 0;
+
+
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", this._r.acc > 255 ? 1 : 0);
+        this._setFlag("C", (this._r.acc * 0x100)>>>8);
         this._setFlag("N", this._r.acc & 0x80 >>> 7);
-        this._setFlag("O", ((this._r.acc > 127)||(this._r.acc<-128))? 1 : 0);
+        //this._setFlag("O", overflow);
 
       },
 
       ADDC: function (src) {
-        this._r.acc = this._r.acc + src;
+        var accsign = (this._r.acc & 0x80)>>>7;
+        this._r.acc = this._r.acc + src + this._getFlag("C");
 
-        // Manage overflow
-        var overflow = 0;
         if (this._r.acc > 127) {
           this._r.acc -= 256;
-          overflow = 1;
         }
         else if (this._r.acc < -128) {
           this._r.acc += 256;
-          overflow = 1;
         }
+
+        //Manage Overflow
+        var overflow = !(accsign ^ ((src & 0x80)>>>7));
+        if(overflow === 1)
+        {
+          if(accsign === (this._r.acc & 0x80)>>>7)
+          {
+            overflow = 0;
+          }
+
+        }
+
 
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", 0);
+        this._setFlag("C", (this._r.acc * 0x100)>>>8);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
         this._setFlag("O", overflow);
       },
@@ -216,26 +234,62 @@ var RISC_AR4 = function () {
       SUB: function (src) {
         this._r.acc = this._r.acc - src;
 
-        // Manage overflow
-        var overflow = 0;
         if (this._r.acc > 127) {
           this._r.acc -= 256;
-          overflow = 1;
         }
         else if (this._r.acc < -128) {
           this._r.acc += 256;
-          overflow = 1;
+        }
+
+        //Manage Overflow
+        var overflow = !(accsign ^ ((src & 0x80)>>>7));
+        if(overflow === 1)
+        {
+          if(accsign === (this._r.acc & 0x80)>>>7)
+          {
+            overflow = 0;
+          }
+
         }
 
         // TODO: Deal with flags
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-        this._setFlag("C", 0);
+        this._setFlag("C", (this._r.acc * 0x100)>>>8);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
         this._setFlag("O", overflow);
       },
 
       MAC: function (src) {
+
+            var fLSBacc = this._r.acc * 0xF;
+            var fLSBsrc = src * 0xF;
+
+            this._r.acc = (fLSBacc*fLSBsrc) + fLSBsrc;
+
+        if (this._r.acc > 127) {
+          this._r.acc -= 256;
+        }
+        else if (this._r.acc < -128) {
+          this._r.acc += 256;
+        }
+
+        //Manage Overflow
+        var overflow = !(accsign ^ ((src & 0x80)>>>7));
+        if(overflow === 1)
+        {
+          if(accsign === (this._r.acc & 0x80)>>>7)
+          {
+            overflow = 0;
+          }
+
+        }
+
         // TODO: Deal with flags
+        this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
+        this._setFlag("C", (this._r.acc * 0x100)>>>8);
+        this._setFlag("N", this._r.acc < 0 ? 1 : 0);
+        this._setFlag("O", overflow);
+
       },
 
       NEG: function () {
@@ -257,8 +311,8 @@ var RISC_AR4 = function () {
       },
 
       RLC: function () {
-        var carry = (this._r.acc & 0x80) >>> 7; // carry = MSB
-        this._r.acc = (this._r.acc << 1) | carry;
+        var carry = this._r.acc & 0x80 >>> 7; // carry = MSB
+        this._r.acc = this._r.acc << 1 | carry;
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", carry);
@@ -290,17 +344,6 @@ var RISC_AR4 = function () {
       },
 
       LDAda: function (src) {
-	  //Si no tiene que leer del keyboard.. agarra lo que esta en memoria
-		  if(!(src === 250 || src === 251)){
-			this._r.acc = MEM.readb(src); // src == address
-
-			this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
-			this._setFlag("C", 0);
-			this._setFlag("N", this._r.acc < 0 ? 1 : 0);
-			this._setFlag("O", 0);
-		  }
-		//Triguerea el keyboard
-		  else{
         this._r.acc = MEM.readb(src); // src == address
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
@@ -311,7 +354,7 @@ var RISC_AR4 = function () {
 		//trigerear keyboard event.
 		if(src === 250 || src === 251){
 			this._delegate("in", {cpu: this, mem: MEM, memPos: src});
-		  }
+		}
       },
 
       STAda: function (src) {
