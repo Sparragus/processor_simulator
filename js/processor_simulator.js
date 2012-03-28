@@ -365,15 +365,17 @@ var RISC_AR4 = function () {
       },
 
       LDAda: function (src) {
+	  //Si no lee del keyboard, entonces lodea dato de la memoria
+	  if(!(src === 250 || src === 251)){
         this._r.acc = MEM.readb(src); // src == address
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("C", 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
         this._setFlag("O", 0);
-
+	  }
 		//trigerear keyboard event.
-		if(src === 250 || src === 251){
+		else{
 			this._delegate("in", {cpu: this, mem: MEM, memPos: src});
 		}
       },
@@ -382,7 +384,7 @@ var RISC_AR4 = function () {
         MEM.writeb(src, this._r.acc); // src == address
 
 		//trigerear display event.
-		if(src >= 252  && src <= 255){
+		if(src >= 252 && src <= 255){
 			this._delegate("out", {mem : MEM, memPos : src});
 		}
       },
