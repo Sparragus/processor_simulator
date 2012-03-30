@@ -233,7 +233,7 @@
 	$(document).ready(function(){
 		$("#device_driver").on("out", function(e, data){
 			//replace one
-			var stringPos = data.mempos-252;
+			var stringPos = data.memPos-252;
 			var displayPre = $(this).find("#display pre");
 			var displayText = displayPre.text();
 			var asciiFromMem = String.fromCharCode(data.mem.readb(data.memPos));
