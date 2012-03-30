@@ -408,7 +408,14 @@ var RISC_AR4 = function () {
 
       LDI: function (src) {
         // TODO: Deal with flags
-        this._r.acc = src;
+		this._r.acc = src;
+		
+		if (this._r.acc > 127) {
+          this._r.acc -= 256;
+        }
+        else if (this._r.acc < -128) {
+          this._r.acc += 256;
+        }
 
         this._setFlag("Z", this._r.acc === 0 ? 1 : 0);
         this._setFlag("N", this._r.acc < 0 ? 1 : 0);
